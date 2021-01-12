@@ -4,12 +4,17 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const jwt = require('jsonwebtoken');
 const app = express();
+const cookieParser = require('cookie-parser');
+var cors = require('cors')
 
+app.use(cors());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json())
 
+const router = express.Router();
 const usersdb = JSON.parse(fs.readFileSync('src/server/users.json', 'UTF-8'));
 
 const SECRET_KEY = '123456789'
@@ -31,7 +36,7 @@ function createToken(payload){
   }
 
 //Fetch users from 
-router.get('/api/users', (req, res) => {
+app.get('/api/users', (req, res) => {
     console.log("users endpoint called; request body:");
     fs.readFile("src/server/users.json", (err, data) => { 
       if (err) {
@@ -104,8 +109,35 @@ app.post('/api/login', (req, res) => {
     const [{email, password}] = currentUser;
     const access_token = createToken({email, password})
     console.log("Access Token:" + access_token);
-    res.status(200).json({access_token})
+    res.status(200).json({access_token}).cookie(currentUser, {expire: 36000 + Date.now()})
   })
+
+
+  //Delete user
+app.delete("/api/:username", (req, res) => {
+  console.log("delete animal endpoint called; request body:");
+  fs.readFile("src/server/users.json", (err, data) => {  
+    if (err) {
+      const status = 401
+      const message = err
+      res.status(status).json({status, message})
+      return
+    }
+    
+    const newData = usersdb.users.filter(user => user.username !== req.params.username);
+
+    fs.writeFile("src/server/users.json", JSON.stringify(newData), (err, res) => {  // WRITE
+      if (err) {
+        const status = 401
+        const message = err
+        res.status(status).json({status, message})
+        return
+      }
+    })
+  });
+  res.status(200).json({})
+});
+
 
   app.use(/^(?!\/auth).*$/,  (req, res, next) => {
     if (req.headers.authorization === undefined || req.headers.authorization.split(' ')[0] !== 'Bearer') {
@@ -127,6 +159,6 @@ app.post('/api/login', (req, res) => {
 
 app.use(router);
 
-app.listen(process.env.PORT || 8080, () => {
+app.listen(4000, () => {
     console.log('Run Auth API Server')
 });

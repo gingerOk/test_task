@@ -39,8 +39,7 @@ const SignUpForm = (props) => {
 
   const validate = (data) => {
     const errors = {};
-    if (!data.username || data.username.length < 2)
-      errors.username = "Invalid username";
+    if (data.username.length < 2) errors.username = "Invalid username";
     if (!isEmail(data.email)) errors.email = "Wrong email";
     if (!isStrongPassword(data.password))
       errors.password = "Password cannot be blank";
@@ -58,10 +57,10 @@ const SignUpForm = (props) => {
     >
       <h1 className="mt-2 text-center alert alert-dark">Signup</h1>
       <div className={`form-group ${errors.username ? "alert-danger" : ""}`}>
-        <label htmlFor="userName" >Username</label>
+        <label htmlFor="userName">Username</label>
         <input
+          onChange={setFormObj(data.username, setData)}
           value={data.username}
-          onChange={setFormObj(data, setData)}
           name="userName"
           type="text"
           id="userName"
@@ -72,7 +71,9 @@ const SignUpForm = (props) => {
         {errors.username && <FormMessage>{errors.username}</FormMessage>}
       </div>
       <div className={`form-group ${errors.email ? "alert-danger" : ""}`}>
-        <label htmlFor="inputEmail" className="mt-2">Email address</label>
+        <label htmlFor="inputEmail" className="mt-2">
+          Email address
+        </label>
         <input
           value={data.email}
           onChange={setFormObj(data, setData)}
@@ -122,7 +123,7 @@ const SignUpForm = (props) => {
       </div>
       <div>
         <button className="btn btn-dark mt-2 w-50" type="submit">
-          Register
+          Signup
         </button>
         <Link to="/" className="btn btn-light mt-2 w-50">
           Cencel

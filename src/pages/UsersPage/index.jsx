@@ -3,34 +3,40 @@ import { useUser, loadUsers, deleteUser } from "../../contexts/UserContext";
 
 const ButtonRemove = (user) => {
   const [, dispatch] = useUser();
+  console.log(user)
   return (
     <span
       onClick={() => deleteUser(dispatch, user)}
-      className="btn btn-warning mt-2 w-50"
+      className="btn btn-warning py-0"
     >
-      YES
+     Remove
     </span>
   );
 };
 
 const UsersPage = () => {
   const [{ users }, dispatch] = useUser();
-
   useEffect(() => {
     loadUsers(dispatch);
   }, [dispatch]);
+  
   return (
-    <table>
+    <div className="container">
+      <h1 className="text-center">Users</h1>
+    <table className="table table-striped">
+      <tbody>
       {users.map((user) => (
-        <tr>
-          <td>{user.username}</td>
-          <td>{user.email}</td>
-          <td>
+        <tr key={user.username} className="row text-center">
+          <td className="col">{user.username}</td>
+          <td className="col">{user.email}</td>
+          <td className="col">
             <ButtonRemove user={user} />
           </td>
         </tr>
       ))}
+      </tbody>
     </table>
+    </div>
   );
 };
 

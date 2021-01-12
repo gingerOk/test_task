@@ -16,7 +16,7 @@ const reducer = (state, action) => {
     case "logout":
       return { ...state, ...initState };
     case "loadUsers":
-      return { ...state, users: action.users };
+      return { ...state, users: action.users};
     case "deleteUser":
       let newUsers = state.users.filter((a) => a.id !== action.user.id);
       return { ...state, newUsers };
@@ -64,7 +64,8 @@ export const logout = (dispatch) => {
 };
 
 export const deleteUser = (dispatch, user) => {
-  dispatch({ type: "deleteUser", user });
+  usersApi.delete(user).then(() => dispatch({ type: "deleteUser", user }))
+  
 };
 
 export const loadUsers = (dispatch) => {
