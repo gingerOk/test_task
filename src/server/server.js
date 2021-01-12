@@ -10,8 +10,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json())
 
-const router = express.Router();
-const usersdb = JSON.parse(fs.readFileSync('../users.json', 'UTF-8'));
+const usersdb = JSON.parse(fs.readFileSync('src/server/users.json', 'UTF-8'));
 
 const SECRET_KEY = '123456789'
 const expiresIn = '1h'
@@ -46,10 +45,10 @@ router.get('/api/users', (req, res) => {
       res.status(200).json(users)
   })
 
-router.post('/api/register', (req, res) => {
+app.post('/api/register', (req, res) => {
     console.log("register endpoint called; request body:");
     console.log(req.body);
-    const {email, password, name} = req.body;
+    const {email, password, username} = req.body;
 
     if(isAuthenticated(usersdb, email, password) === true) {
         const status = 401;
@@ -72,7 +71,7 @@ router.post('/api/register', (req, res) => {
         // Get the id of last user
         var last_item_id = newData.users.length > 1 ? newData.users[newData.users.length-1].id : 0;
         //Add new user
-        newData.users.push({name, email, password, id: last_item_id + 1}); //add some data
+        newData.users.push({username, email, password, id: last_item_id + 1}); //add some data
         fs.writeFile("src/_services/users.json", JSON.stringify(newData), (err, res) => {  // WRITE
             if (err) {
               const status = 401
@@ -90,10 +89,10 @@ router.post('/api/register', (req, res) => {
 })
 
 // Login to one of the users from ./users.json
-router.post('/api/login', (req, res) => {
+app.post('/api/login', (req, res) => {
     console.log("login endpoint called; request body:");
     console.log(req.body);
-    const contents = fs.readFileSync("src/_services/users.json", 'utf8');
+    const contents = fs.readFileSync("src/server/users.json", 'utf8');
     const newData = JSON.parse(contents)
     if (!isAuthenticated(newData, req.body.email, req.body.password)) {
       const status = 401

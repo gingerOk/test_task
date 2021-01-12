@@ -1,3 +1,7 @@
 {
-    "users": []
+    "users": [{
+        "username": "cherry",
+        "email": "adm6@com.ua",
+        "password": "Rfgecnf34!"
+    }]
 }

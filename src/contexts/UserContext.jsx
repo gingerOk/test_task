@@ -1,20 +1,25 @@
-import React, {createContext, useContext} from "react";
-
-import {setAuthorizationHeader} from "api";
+import React, { createContext, useContext } from "react";
+import { users as usersApi, setAuthorizationHeader } from "api";
 
 const initState = {
+  users: [],
   token: null,
 };
 
 const reducer = (state, action) => {
-  const {type, token} = action;
+  const { type, token } = action;
   switch (type) {
     case "setUser":
-      return {...state, token};
+      return { ...state, token };
     case "login":
-      return {...state, token};
+      return { ...state, token };
     case "logout":
-      return {...state, ...initState};
+      return { ...state, ...initState };
+    case "loadUsers":
+      return { ...state, users: action.users };
+    case "deleteUser":
+      let newUsers = state.users.filter((a) => a.id !== action.user.id);
+      return { ...state, newUsers };
     default:
       throw Error("no cases found");
   }
@@ -22,9 +27,9 @@ const reducer = (state, action) => {
 
 const UserContext = createContext();
 
-export const UserProvider = ({children}) => {
+export const UserProvider = ({ children }) => {
   const [user, dispatch] = React.useReducer(reducer, initState);
- 
+
   React.useEffect(() => {
     if (localStorage.userToken) {
       dispatch({
@@ -47,15 +52,22 @@ export function useUser() {
 }
 
 export const login = (dispatch, token) => {
-  dispatch({type: "login", token});
-  localStorage.setItem("userToken", token)
+  dispatch({ type: "login", token });
+  localStorage.setItem("userToken", token);
   setAuthorizationHeader(token);
 };
 
-export const logout = dispatch => {
-  dispatch({type: "logout"});
+export const logout = (dispatch) => {
+  dispatch({ type: "logout" });
   setAuthorizationHeader();
   delete localStorage.userToken;
 };
 
+export const deleteUser = (dispatch, user) => {
+  dispatch({ type: "deleteUser", user });
+};
+
+export const loadUsers = (dispatch) => {
+  usersApi.fetchAll().then((users) => dispatch({ type: "loadUsers", users }));
+};
 export default UserContext;
